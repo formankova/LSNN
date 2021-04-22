@@ -5,8 +5,8 @@ from sklearn.feature_extraction.text import TfidfTransformer
 
 
 class Preprocessing():
-    def createBafOfWords(self, train, test, n_tokens):
-        text = np.concatenate((train, test))
+    def fit(self, train, n_tokens=None):
+        text = train
         self._vectorizer = CountVectorizer(
             decode_error='replace',
             lowercase=False,
@@ -19,17 +19,11 @@ class Preprocessing():
             binary=False)
 
         X = self._vectorizer.fit_transform(text)
-        self._tf_transformer = TfidfTransformer().fit(X)
-
-        X_train = self.transform(train)
-        X_test = self.transform(test)
-
-        return X_train, X_test
+        return X
 
     def transform(self, input):
         input = self._vectorizer.transform(input)
-        input = self._tf_transformer.transform(input)
-        return input.toarray()
+        return input
 
     def _tokenizeData(self, text):
         lower_text = text.lower()
