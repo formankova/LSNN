@@ -5,7 +5,6 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
 
-
 class LooselySymmetricNN():
     def __init__(self, n_input, n_hidden=30,
                  epochs=100, alpha=0.5,
@@ -97,10 +96,9 @@ class LooselySymmetricNN():
 
         delta_output = self._delta_output(a3, target)
         ls = self._loosely_symmetric(a2, z3)
-        cmp = np.greater_equal(ls, a2)
-        diff = np.abs(ls - a2)
-        n_a2 = [a2[i] * (1.0 + self.enhancement) if cmp[i] else a2[i] * (1.0 - self.enhancement) for i in
-                range(a2.shape[0])]
+        n_a2 = np.where(a2 < ls, a2 * (1.0 + self.enhancement), a2)
+        n_a2 = np.where(a2 > ls, a2 * (1.0 - self.enhancement), n_a2)
+
         if (save):
             a2 = n_a2
         adj_o = - self.alpha * delta_output * n_a2
@@ -115,12 +113,10 @@ class LooselySymmetricNN():
                 delta_output_times_w_h, a2[index])
 
             ls = self._loosely_symmetric(a1, z2[index])
-            cmp = np.greater_equal(ls, a1)
-            diff = np.abs(ls - a1)
-            n_a1 = [a1[i] * (1.0 + self.enhancement) if cmp[i] else a1[i] * (1.0 - self.enhancement) for i in
-                    range(a1.shape[0])]
+            n_a1 = np.where(a1 < ls, a1 * (1.0 + self.enhancement), a1)
+            n_a1 = np.where(a1 > ls, a1 * (1.0 - self.enhancement), n_a1)
             if (save):
-                a1 = np.asarray(n_a1)
+                a1 = n_a1
             adj_h[index] = - self.alpha * delta_hidden * n_a1
 
         self.w_o += adj_o.reshape(self.w_o.shape)
@@ -132,11 +128,13 @@ class LooselySymmetricNN():
 
         delta_output = self._delta_output(a3, target)
         ls = self._loosely_symmetric(a2, z3)
-        cmp = np.greater_equal(ls, a2)
-        diff = np.abs(ls - a2)
-        n_a2 = [(a2[i] * (1.0 + self.enhancement) if a2[i] * (self.enhancement) < diff[i] else ls[i]) if cmp[i]
-                else (a2[i] * (1.0 - self.enhancement) if a2[i] * (self.enhancement) < diff[i] else ls[i]) for i in
-                range(a2.shape[0])]
+
+        n_a2 = np.where(a2 < ls, np.where(a2 * (self.enhancement) < np.abs(ls - a2), a2 * (1.0 + self.enhancement), a2),
+                        a2)
+        n_a2 = np.where(a2 < ls, np.where(a2 * (self.enhancement) > np.abs(ls - a2), ls, n_a2), n_a2)
+        n_a2 = np.where(a2 > ls,
+                        np.where(a2 * (self.enhancement) < np.abs(ls - a2), a2 * (1.0 - self.enhancement), n_a2), n_a2)
+        n_a2 = np.where(a2 > ls, np.where(a2 * (self.enhancement) > np.abs(ls - a2), ls, n_a2), n_a2)
         if (save):
             a2 = n_a2
         adj_o = - self.alpha * delta_output * n_a2
@@ -151,13 +149,15 @@ class LooselySymmetricNN():
                 delta_output_times_w_h, a2[index])
 
             ls = self._loosely_symmetric(a1, z2[index])
-            cmp = np.greater_equal(ls, a1)
-            diff = np.abs(ls - a1)
-            n_a1 = [(a1[i] * (1.0 + self.enhancement) if a1[i] * (self.enhancement) < diff[i] else ls[i]) if cmp[i]
-                    else (a1[i] * (1.0 - self.enhancement) if a1[i] * (self.enhancement) < diff[i] else ls[i]) for i in
-                    range(a1.shape[0])]
+            n_a1 = np.where(a1 < ls,
+                            np.where(a1 * (self.enhancement) < np.abs(ls - a1), a1 * (1.0 + self.enhancement), a1), a1)
+            n_a1 = np.where(a1 < ls, np.where(a1 * (self.enhancement) > np.abs(ls - a1), ls, n_a1), n_a1)
+            n_a1 = np.where(a1 > ls,
+                            np.where(a1 * (self.enhancement) < np.abs(ls - a1), a1 * (1.0 - self.enhancement), n_a1),
+                            n_a1)
+            n_a1 = np.where(a1 > ls, np.where(a1 * (self.enhancement) > np.abs(ls - a1), ls, n_a1), n_a1)
             if (save):
-                a1 = np.asarray(n_a1)
+                a1 = n_a1
             adj_h[index] = - self.alpha * delta_hidden * n_a1
 
         self.w_o += adj_o.reshape(self.w_o.shape)
