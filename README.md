@@ -3,6 +3,11 @@ Loosely Symmetric Neural Network Classifier.
 
 Implementation of the neural network with enhancement by symmetric biases. It is based on the description by Taniguchi et al. (https://doi.org/10.9746/jcmsi.12.56).
 
+## Requirements
++ numpy
++ sklearn.utils
++ sklearn.metrics
+
 | Parameters    |                                       |       |
 | ------------- |---------------------------------------|-------|
 |               | **n_input**: int                          | number of features |
