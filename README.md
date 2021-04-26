@@ -48,3 +48,12 @@ Implementation of the neural network with enhancement by symmetric biases. It is
 + value_node_unified_flattened
 
   Values are not changed when the enhancement is more significant than the difference between nodes and LS model output, but LS model output is used. New nodes are **not** backpropagated further.
+  
+## Contents
++ utils - preprocessing function for text data sets
+
++ test - contains usage example
+
++ datasets - raw SpamAssassin public corpus without hard_ham (source: https://spamassassin.apache.org/old/publiccorpus/)
+
++ LSNN_enhancementExperiment - extracted code from the experimentation with multiple possible enhancements using the LS model
