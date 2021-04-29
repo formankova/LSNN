@@ -14,6 +14,16 @@ class LooselySymmetricNN:
     def __init__(self, n_input, n_hidden=30,
                  epochs=100, alpha=0.5,
                  random_state=1, enhancement=0.1, enhancement_type="none"):
+        """
+        Initialization
+        :param n_input: features count
+        :param n_hidden: count of nodes in hidden layer
+        :param epochs: count of epochs
+        :param alpha: learning rate
+        :param random_state: random state
+        :param enhancement: determines the gravity of the change made to nodes during backpropagation
+        :param enhancement_type: type of enhancement
+        """
 
         np.random.seed(random_state)  # for weights initialization
 
