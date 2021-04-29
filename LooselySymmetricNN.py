@@ -11,9 +11,8 @@ Three-layered Loosely Symmetric Neural Network
 
 
 class LooselySymmetricNN:
-    def __init__(self, n_input, n_hidden=30,
-                 epochs=100, alpha=0.5,
-                 random_state=1, enhancement=0.1, enhancement_type="none"):
+    def __init__(self, n_input, n_hidden=30, epochs=100, alpha=0.5,
+                 random_state=1, enhancement=0.1, enhancement_type="none", shuffle=False):
         """
         Initialization
         :param n_input: features count
@@ -23,6 +22,7 @@ class LooselySymmetricNN:
         :param random_state: random state
         :param enhancement: determines the gravity of the change made to nodes during backpropagation
         :param enhancement_type: type of enhancement
+        :param shuffle: option to shuffle data before training
         """
 
         np.random.seed(random_state)  # for weights initialization
@@ -35,6 +35,7 @@ class LooselySymmetricNN:
 
         self.epochs = epochs + 1
         self.alpha = alpha
+        self.shuffle = shuffle
 
         self.enhancement = enhancement
 
@@ -112,7 +113,8 @@ class LooselySymmetricNN:
         """
         self._check_fit(X_train, y_train)
 
-        X_train, y_train = shuffle(X_train, y_train)
+        if self.shuffle:
+            X_train, y_train = shuffle(X_train, y_train)
 
         for i in range(self.epochs):
 
