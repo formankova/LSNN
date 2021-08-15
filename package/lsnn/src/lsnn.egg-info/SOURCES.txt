@@ -1,0 +1,10 @@
+LICENSE.txt
+README.md
+pyproject.toml
+setup.py
+src/lsnn/__init__.py
+src/lsnn/loosely_symmetric_neural_network.py
+src/lsnn.egg-info/PKG-INFO
+src/lsnn.egg-info/SOURCES.txt
+src/lsnn.egg-info/dependency_links.txt
+src/lsnn.egg-info/top_level.txt

@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+import time
 from sklearn.utils import shuffle
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
@@ -12,7 +14,7 @@ Three-layered Loosely Symmetric Neural Network
 
 class LooselySymmetricNN:
     def __init__(self, n_input, n_hidden=30, epochs=100, alpha=0.5,
-                 random_state=1, enhancement=0.1, enhancement_type="none", shuffle=False):
+                 random_state=1, enhancement=0.1, enhancement_type="none", shuffle=False, verbose=True):
         """
         Initialization
         :param n_input: features count
@@ -33,9 +35,10 @@ class LooselySymmetricNN:
 
         self.w_h, self.w_o = self._initialize_weights()
 
-        self.epochs = epochs + 1
+        self.epochs = epochs
         self.alpha = alpha
         self.shuffle = shuffle
+        self.verbose = verbose
 
         self.enhancement = enhancement
 
@@ -75,7 +78,7 @@ class LooselySymmetricNN:
         :param X: the array of inputs to neural network
         """
         if type(X) is not np.ndarray:
-            raise ValueError("Array of a type np.nadarray expected")
+            raise ValueError("Array of a type np.ndarray expected")
 
         if X.ndim != 2 or X.shape[1] != self.n_input:
             raise ValueError("Array of a shape (count_data, " + str(self.n_input) + ") expected")
@@ -88,7 +91,7 @@ class LooselySymmetricNN:
         """
         self._check_input(X)
         if type(y) is not np.ndarray:
-            raise ValueError("Array of a type np.nadarray expected")
+            raise ValueError("Array of a type np.ndarray expected")
 
         if y.shape != (X.shape[0],):
             raise ValueError("Incorrect expected output shape.")
@@ -113,13 +116,19 @@ class LooselySymmetricNN:
         """
         self._check_fit(X_train, y_train)
 
-        if self.shuffle:
-            X_train, y_train = shuffle(X_train, y_train)
+        train_size = X_train.shape[0]
 
-        for i in range(self.epochs):
+        for i in range(1, self.epochs+1):
+            start = time.time()
+
+            if self.verbose:
+                print("\nEpoch " + str(i) + "/" + str(self.epochs))
+
+            if self.shuffle:
+                X_train, y_train = shuffle(X_train, y_train)
 
             # iterate over training set
-            for j in range(X_train.shape[0]):
+            for j in range(train_size):
                 # target for actual input
                 target = y_train[j]
 
@@ -129,7 +138,15 @@ class LooselySymmetricNN:
                 # activations
                 a1, a2, a3, z2, z3 = self._feedforward(X)
 
+                percentage = int((100 * float(j) / float(train_size-1)) / 10)
+
                 self.enhancement_functions[self.enhancement_type](a1, a2, a3, z2, z3, target)
+                end = time.time()
+                if self.verbose:
+                    sys.stdout.write("\r" + str(j) + "/" + str(X_train.shape[0] - 1)
+                                     + " [" + percentage*"-" + (10-percentage)*" " + "] "
+                                     + str(round(end - start, 3)) + "s")
+                sys.stdout.flush()
 
         self.is_Fitted = True
         return self
@@ -146,8 +163,6 @@ class LooselySymmetricNN:
         :param save: boolean
         """
         # adjusting output layer weights
-        adj_o = np.zeros((self.n_hidden, self.n_output))
-
         delta_output = self._delta_output(a3, target)
         ls = self._loosely_symmetric(a2, z3)
         n_a2 = np.where(a2 < ls, a2 * (1.0 + self.enhancement), a2)
@@ -188,8 +203,6 @@ class LooselySymmetricNN:
         :param save: boolean
         """
         # adjusting output layer weights
-        adj_o = np.zeros((self.n_hidden, self.n_output))
-
         delta_output = self._delta_output(a3, target)
         ls = self._loosely_symmetric(a2, z3)
 
@@ -216,10 +229,6 @@ class LooselySymmetricNN:
             n_a1 = np.where(a1 < ls,
                             np.where(a1 * self.enhancement < np.abs(ls - a1), a1 * (1.0 + self.enhancement), a1), a1)
             n_a1 = np.where(a1 < ls, np.where(a1 * self.enhancement > np.abs(ls - a1), ls, n_a1), n_a1)
-            n_a1 = np.where(a1 > ls,
-                            np.where(a1 * self.enhancement < np.abs(ls - a1), a1 * (1.0 - self.enhancement), n_a1),
-                            n_a1)
-            n_a1 = np.where(a1 > ls, np.where(a1 * self.enhancement > np.abs(ls - a1), ls, n_a1), n_a1)
             if save:
                 a1 = n_a1
             adj_h[index] = - self.alpha * delta_hidden * n_a1
@@ -286,8 +295,6 @@ class LooselySymmetricNN:
         :param target: expected labels
         """
         # adjusting output layer weights
-        adj_o = np.zeros((self.n_hidden, self.n_output))
-
         delta_output = self._delta_output(a3, target)
         adj_o = - self.alpha * delta_output * a2
 
@@ -312,11 +319,11 @@ class LooselySymmetricNN:
         # input
         a1 = X.astype(np.float)
 
-        # wieghted sum - hidden layer
+        # weighted sum - hidden layer
         z2 = a1.dot(self.w_h)
         a2 = self._sigmoid(z2.astype(np.float))
 
-        # wieghted sum - output layer
+        # weighted sum - output layer
         z3 = a2.dot(self.w_o)
         a3 = self._sigmoid(z3.astype(np.float))
         return a1, a2, a3, z2, z3
@@ -349,14 +356,23 @@ class LooselySymmetricNN:
         ac = (a * c) / (a + c)
         return (a + bd) / (1 + ac + bd)
 
-    def _predict_value(self, X):
+    def _predict_value(self, X, rnd=True):
         """
         Predicts input's label.
         :param X: input
         :return: 0 or 1
         """
         a1, a2, a3, z2, z3 = self._feedforward(X)
-        return round(a3[0])
+        return round(a3[0]) if rnd else a3[0]
+
+    def _predict(self, X, check=False, rnd=True):
+        if check:
+            self._check_input(X)
+            self._check_predict()
+        result = []
+        for x in X:
+            result.append(self._predict_value(x, rnd))
+        return result
 
     def predict(self, X):
         """
@@ -364,11 +380,7 @@ class LooselySymmetricNN:
         :param X: inputs
         :return: predicted labels
         """
-        self._check_input(X)
-        self._check_predict()
-        result = []
-        for x in X:
-            result.append(self._predict_value(x))
+        result = self._predict(X, True)
         return result
 
     def _initialize_weights(self):
