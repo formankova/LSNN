@@ -51,7 +51,9 @@ Implementation of the neural network with enhancement by symmetric biases. It is
   Values are not changed when the enhancement is more significant than the difference between nodes and LS model output, but LS model output is used. New nodes are **not** backpropagated further.
   
 ## Contents
-+ utils - preprocessing function for text data sets
++ utils - preprocessing function for english text data sets
+
++ package - packaged implementation
 
 + test - contains usage example
 
