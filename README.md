@@ -18,6 +18,7 @@ Implementation of the neural network with enhancement by symmetric biases. It is
 |               | **enhancement**: float, default=0.1       | determines the gravity of the change made to nodes during backpropagation, ignored when the enhancement_type is 'none'
 |               | **enhancement_type**: str, default="none" | |
 |               | **shuffle**: bool, default=False | option to shuffle data before training |
+|               | **verbose**: bool, default=True | interactive output showing status during learning |
 | **Methods**       |  | |
 |               | fit(X_train, y_train) | Fit the model to data matrix X and target y. |
 |               | predict(X) | Predict target. |
