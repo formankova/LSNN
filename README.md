@@ -7,6 +7,10 @@ Implementation of the neural network with enhancement by symmetric biases. It is
 + numpy
 + sklearn.utils
 + sklearn.metrics
++ utils/Preprocessing.py
+  + spacy_udpipe
+  + sklearn.feature_extraction
+  + spacy.lang
 
 | Parameters    |                                       |       |
 | ------------- |---------------------------------------|-------|
