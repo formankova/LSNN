@@ -19,7 +19,7 @@ class Preprocessing:
         self.stop_words = []
         self._vectorizer = None
 
-    def fit(self, train, n_tokens=None, default_stop_words=False, stop_words=None):
+    def fit(self, train, min_df=2, n_tokens=None, default_stop_words=False, stop_words=None):
         if stop_words is None:
             self.stop_words = []
         else:
@@ -34,7 +34,7 @@ class Preprocessing:
             stop_words=None,
             ngram_range=(1, 1),
             max_df=0.99,
-            min_df=1,
+            min_df=min_df,
             max_features=n_tokens,
             binary=False)
 
