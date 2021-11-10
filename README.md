@@ -56,12 +56,18 @@ Implementation of the neural network with enhancement by symmetric biases. It is
   Values are not changed when the enhancement is more significant than the difference between nodes and LS model output, but LS model output is used. New nodes are **not** backpropagated further.
   
 ## Contents
-+ utils - preprocessing function for english text data sets
++ utils - preprocessing functionality for english and czech text
 
 + package - packaged implementation
 
-+ test - contains usage example
++ test - contains usage examples
 
 + datasets - raw SpamAssassin public corpus without hard_ham (source: https://spamassassin.apache.org/old/publiccorpus/)
 
 + LSNN_enhancementExperiment - extracted code from the experimentation with multiple possible enhancements using the LS model
+
+## Related content
+
++ https://vskp.vse.cz/83364_loosely-symmetric-neural-network-implementation?author=Form%C3%A1nkov%C3%A1
++ https://doi.org/10.9746/jcmsi.12.56
++ https://doi.org/10.1038/s41598-018-25679-z
